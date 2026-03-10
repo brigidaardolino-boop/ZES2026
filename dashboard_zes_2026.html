@@ -270,10 +270,12 @@ footer{text-align:center;padding:44px 32px;border-top:1px solid var(--parchment)
           <optgroup label="Intero territorio regionale ammesso">
             <option value="campania">Campania</option>
             <option value="puglia">Puglia</option>
+            <option value="puglia_ftg">Puglia (zone Fondo Transizione Giusta)</option>
             <option value="basilicata">Basilicata</option>
             <option value="calabria">Calabria</option>
             <option value="sicilia">Sicilia</option>
             <option value="sardegna">Sardegna</option>
+            <option value="sardegna_ftg">Sardegna (zone Fondo Transizione Giusta)</option>
             <option value="molise">Molise</option>
           </optgroup>
           <optgroup label="Solo alcune zone del territorio">
@@ -412,7 +414,7 @@ footer{text-align:center;padding:44px 32px;border-top:1px solid var(--parchment)
               </div>
             </div>
             <div id="warn-50" style="display:none;margin-top:10px;font-size:11.5px;color:var(--warn);background:var(--warn-bg);border:1px solid rgba(201,162,39,0.3);border-radius:2px;padding:8px 12px">
-              &#9888; Attenzione: i terreni e fabbricati superano il limite del 50% dell&apos;investimento complessivo. La quota eccedente non sar&#224; agevolabile.
+              &#9888; Attenzione: i terreni e fabbricati superano la componente non-immobiliare (macchinari + leasing). Ai sensi della Risposta AdE n.&nbsp;183/2025, la quota immobiliare agevolabile non pu&ograve; eccedere il valore di macchinari e leasing. La parte eccedente non sar&agrave; agevolabile.
             </div>
           </div>
           <div class="spese-row" style="border:1.5px solid var(--cream-2);border-radius:3px;padding:16px 18px;background:var(--cream)">
@@ -517,16 +519,19 @@ var prvOk = false;
 var cur = 1;
 
 var PERC = {
-  campania:{piccola:45,media:35,grande:25},
-  puglia:{piccola:45,media:35,grande:25},
-  basilicata:{piccola:45,media:35,grande:25},
-  calabria:{piccola:45,media:35,grande:25},
-  sicilia:{piccola:45,media:35,grande:25},
-  sardegna:{piccola:45,media:35,grande:25},
-  molise:{piccola:45,media:35,grande:25},
-  abruzzo:{piccola:30,media:20,grande:10},
-  marche:{piccola:35,media:25,grande:15},
-  umbria:{piccola:35,media:25,grande:15}
+  /* std = investimento <= 50 mln | gpi = investimento > 50 mln (Grandi Progetti Investimento) */
+  campania:   {piccola_std:60,piccola_gpi:40,media_std:50,media_gpi:40,grande:40},
+  puglia:     {piccola_std:60,piccola_gpi:40,media_std:50,media_gpi:40,grande:40},
+  puglia_ftg: {piccola_std:70,piccola_gpi:50,media_std:60,media_gpi:50,grande:50},
+  basilicata: {piccola_std:50,piccola_gpi:30,media_std:40,media_gpi:30,grande:30},
+  calabria:   {piccola_std:60,piccola_gpi:40,media_std:50,media_gpi:40,grande:40},
+  sicilia:    {piccola_std:60,piccola_gpi:40,media_std:50,media_gpi:40,grande:40},
+  sardegna:   {piccola_std:50,piccola_gpi:30,media_std:40,media_gpi:30,grande:30},
+  sardegna_ftg:{piccola_std:60,piccola_gpi:40,media_std:50,media_gpi:40,grande:40},
+  molise:     {piccola_std:50,piccola_gpi:30,media_std:40,media_gpi:30,grande:30},
+  abruzzo:    {piccola_std:35,piccola_gpi:15,media_std:25,media_gpi:15,grande:15},
+  marche:     {piccola_std:35,piccola_gpi:15,media_std:25,media_gpi:15,grande:15},
+  umbria:     {piccola_std:35,piccola_gpi:15,media_std:25,media_gpi:15,grande:15}
 };
 var SETTORI_KO = ['siderurgico','trasporti','energia','banda-larga','finanza'];
 var BUDGET = {'2026':'2,3','2027':'1','2028':'0,75'};
@@ -642,7 +647,7 @@ function aggTotale() {
   var v = getImporti();
   document.getElementById('totale-disp').innerHTML = '&euro; ' + fmt(v.tot);
   var w50 = document.getElementById('warn-50');
-  if(v.tot > 0 && v.terr > v.tot * 0.5) {
+  if(v.tot > 0 && v.terr > (v.macch + v.leas)) {
     w50.style.display = 'block';
   } else {
     w50.style.display = 'none';
@@ -714,11 +719,22 @@ function calcola() {
   if(D.impMacch>0) beniDesc.push('Macchinari/impianti: &euro; '+fmt(D.impMacch));
   if(D.impTerr>0)  beniDesc.push('Terreni/fabbricati: &euro; '+fmt(D.impTerr));
   if(D.impLeas>0)  beniDesc.push('Leasing: &euro; '+fmt(D.impLeas));
-  var terrWarn = D.impTerr > D.importo * 0.5;
+  /* Regola 50% - Risposta interpello AdE n. 183/2025:
+     La componente immobiliare agevolata non puo' essere superiore alla componente
+     non-immobiliare (macchinari + leasing). La base agevolata e' quindi:
+     non-immobiliare + min(immobiliare, non-immobiliare)             */
+  var compNonImmob = D.impMacch + D.impLeas;
+  var compImmobAgevm = Math.min(D.impTerr, compNonImmob);
+  var impAmmissibile = compNonImmob + compImmobAgevm;
+  var terrWarn = D.impTerr > compNonImmob;
   if(terrWarn) {
-    var capTerreni = D.importo * 0.5;
-    var impAmmissibile = D.impMacch + capTerreni + D.impLeas;
-    rows.push(makeRow('warn','&#9888;','<strong>Limite 50% terreni/fabbricati.</strong> La quota agevolabile di terreni e fabbricati &egrave; cappata al 50% dell&apos;investimento complessivo (&euro; '+fmt(capTerreni)+'). Investimento ammissibile ai fini del calcolo: &euro; '+fmt(impAmmissibile)+'.'));
+    rows.push(makeRow('warn','&#9888;',
+      '<strong>Limite 50% terreni/fabbricati (AdE Risp. 183/2025).</strong> '
+      +'La quota agevolabile di terreni e fabbricati (&euro; '+fmt(D.impTerr)+') '
+      +'non pu&ograve; superare la componente non immobiliare (&euro; '+fmt(compNonImmob)+' tra macchinari e leasing). '
+      +'Quota immobiliare ammessa: &euro; '+fmt(compImmobAgevm)+'. '
+      +'<strong>Investimento agevolabile: &euro; '+fmt(impAmmissibile)+'</strong>.'
+    ));
     imp = impAmmissibile;
   } else {
     rows.push(makeRow('ok','&#10003;','<strong>Tipologia beni ammissibile.</strong> '+beniDesc.join(' &middot; ')));
@@ -735,12 +751,25 @@ function calcola() {
   /* Credito */
   var creditoHtml = '';
   if(eligible && PERC[D.regione]) {
-    var perc = PERC[D.regione][D.dim];
     var base = Math.min(imp, 100000000);
-    var credito = base * perc / 100;
-    if((D.regione==='marche'||D.regione==='umbria') && base>50000000) {
-      credito = (50000000*perc/100) + ((base-50000000)*15/100);
+    var isGPI = base > 50000000;
+    var pr = PERC[D.regione];
+    var perc;
+    if(D.dim === 'grande') {
+      perc = pr.grande;
+    } else if(D.dim === 'media') {
+      perc = isGPI ? pr.media_gpi : pr.media_std;
+    } else {
+      perc = isGPI ? pr.piccola_gpi : pr.piccola_std;
     }
+    var credito;
+    if(isGPI) {
+      /* GPI: aliquota ridotta sull'intera base */
+      credito = base * perc / 100;
+    } else {
+      credito = base * perc / 100;
+    }
+    var gpiNote = isGPI ? ' &middot; GPI (&gt;50 mln)' : ' &middot; investimento &le;50 mln';
     var budgetAmt = BUDGET[D.anno]||'';
     var budgetTxt = D.anno==='2026' ? MS.stimaNoteB : MS.stimaNoteC;
     var nomeDim = D.dim.charAt(0).toUpperCase()+D.dim.slice(1);
@@ -748,7 +777,7 @@ function calcola() {
     creditoHtml = '<div class="cebox">'
       +'<div class="celbl">'+MS.stimaLbl+'</div>'
       +'<div class="ceamt"><span>&euro;</span> '+fmt(credito)+'</div>'
-      +'<div class="cerate">Aliquota '+perc+'% &middot; '+nomeDim+' impresa &middot; '+nomeReg+'</div>'
+      +'<div class="cerate">Aliquota '+perc+'% &middot; '+nomeDim+' impresa &middot; '+nomeReg+gpiNote+'</div>'
       +'<div class="cenote">'+MS.stimaNoteA+budgetAmt+budgetTxt+D.anno+MS.stimaNoteD+'</div>'
       +'</div>';
   }
