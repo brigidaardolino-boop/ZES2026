@@ -462,40 +462,32 @@ footer{text-align:center;padding:44px 32px;border-top:1px solid var(--parchment)
       <div id="fwrap">
         <div class="cey">Studio Ardolino &middot; Napoli</div>
         <div class="ctitle">Richiedi una consulenza gratuita</div>
-        <p class="csub">Inserisci i tuoi dati: il nostro studio analizzer&#224; il progetto nel dettaglio, gestir&#224; le comunicazioni con l&apos;Agenzia delle Entrate e ti guider&#224; nell&apos;utilizzo del credito in compensazione.</p>
-        <div class="frow">
-          <div class="fgroup">
-            <label class="flabel">Nome <span class="req">*</span></label>
-            <input type="text" id="c-nome" placeholder="Mario">
-            <div class="ferr" id="err-nome">Campo obbligatorio</div>
+        <p class="csub">Compila il modulo di contatto: il nostro studio analizzer&#224; il progetto nel dettaglio, gestir&#224; le comunicazioni con l&apos;Agenzia delle Entrate e ti guider&#224; nell&apos;utilizzo del credito in compensazione.</p>
+        <div style="margin:28px 0 24px;text-align:center">
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSf28wcIljzSLA3-dq__PMGghIunPFXEIN9L7joAle_ui3aWvg/viewform?usp=dialog"
+             target="_blank" rel="noopener"
+             style="display:inline-block;background:linear-gradient(135deg,#c9960e,#DAA520);color:#1e0a4a;font-weight:700;font-size:15px;letter-spacing:0.5px;padding:16px 38px;border-radius:3px;text-decoration:none;box-shadow:0 4px 18px rgba(201,150,14,0.35);transition:opacity 0.2s"
+             onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
+            &#9993;&nbsp;&nbsp;Compila il modulo di consulenza
+          </a>
+        </div>
+        <p style="font-size:12px;color:var(--text-light);text-align:center;line-height:1.6">
+          Il modulo si apre in una nuova scheda su Google.<br>
+          I suoi dati arriveranno direttamente allo Studio Ardolino.
+        </p>
+        <div style="margin-top:22px;border-top:1px solid rgba(218,165,32,0.15);padding-top:18px">
+          <div style="display:flex;align-items:center;gap:14px;justify-content:center;flex-wrap:wrap">
+            <div style="font-size:12px;color:var(--text-light);display:flex;align-items:center;gap:6px">
+              <span style="color:#DAA520;font-size:15px">&#9742;</span>
+              <a href="tel:+393926889849" style="color:var(--text-light);text-decoration:none">392 688 9849</a>
+            </div>
+            <div style="font-size:12px;color:var(--text-light);opacity:0.4">&bull;</div>
+            <div style="font-size:12px;color:var(--text-light);display:flex;align-items:center;gap:6px">
+              <span style="color:#DAA520;font-size:15px">&#9679;</span>
+              Via Toledo 265, Napoli
+            </div>
           </div>
-          <div class="fgroup">
-            <label class="flabel">Cognome <span class="req">*</span></label>
-            <input type="text" id="c-cogn" placeholder="Rossi">
-            <div class="ferr" id="err-cogn">Campo obbligatorio</div>
-          </div>
         </div>
-        <div class="fgroup">
-          <label class="flabel">Indirizzo e-mail <span class="req">*</span></label>
-          <input type="email" id="c-mail" placeholder="mario.rossi@azienda.it">
-          <div class="ferr" id="err-mail">Inserisci un indirizzo e-mail valido</div>
-        </div>
-        <div class="fgroup">
-          <label class="flabel">Ragione sociale (facoltativo)</label>
-          <input type="text" id="c-az" placeholder="Nome dell&apos;impresa">
-        </div>
-        <div class="prv" onclick="togglePrv()">
-          <div class="pvbox" id="pvbox"></div>
-          <div class="pvtxt">Acconsento al trattamento dei dati personali ai sensi del Reg. UE 679/2016 (GDPR) per ricevere una risposta alla mia richiesta. I dati non saranno ceduti a terzi.</div>
-        </div>
-        <div class="ferr" id="err-prv">&#200; necessario accettare l&apos;informativa sulla privacy per procedere</div>
-        <button class="bsend" onclick="invia()">Invia la richiesta di consulenza</button>
-      </div>
-      <div class="succ" id="succ">
-        <div class="sico">&#9993;</div>
-        <div class="stit">Richiesta inviata</div>
-        <p class="ssub">Grazie per averci contattato.<br>Lo Studio Ardolino la ricontatter&#224; all&apos;indirizzo e-mail indicato per approfondire il progetto e gestire tutte le fasi operative.</p>
-        <div class="scon">Tel. 392 688 9849 &middot; Via Toledo 265, Napoli</div>
       </div>
     </div>
   </div>
